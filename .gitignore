@@ -1,0 +1,20 @@
+# Environments & Secrets
+venv/
+env/
+.venv/
+.env
+*.env
+!.env.example
+
+# Python & Pytest Caches
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Vector Store
+backend/data/vector_store/chroma_db/
+
+# Editor & OS Artifacts
+.vscode/
+.DS_Store
+*.log
