@@ -312,22 +312,30 @@ The RAG pipeline was evaluated using 10 technical questions covering the three s
 | Correctly refused unsupported questions | 4 |
 | Total questions | 10 |
 
-### Example evaluated questions
+### Results Table
 
-| Question | Result |
-|---|---|
-| How do I level the Ender-3 S1 bed? | ✅ Correct |
-| What should I do if the Ender-3 S1 filament jams? | ✅ Correct |
-| How much Flash memory does the Arduino Uno have? | ✅ Correct |
-| What interface does the Raspberry Pi Pico use for I2C? | ✅ Correct |
-| What are the Arduino Uno analog input pins? | ✅ Correct |
-| What type of USB connection does the Arduino Uno use? | ✅ Correct |
-| What is the Ender-3 S1 build volume? | 🛡️ Refused |
-| Does the Ender-3 S1 have a filament sensor? | 🛡️ Refused |
-| What is the default Arduino Uno baud rate? | 🛡️ Refused |
-| What microcontroller chip does the Raspberry Pi Pico use? | 🛡️ Refused |
+| Question | Retrieved Source & Chunk | Answer Summary | Evaluation |
+| :--- | :--- | :--- | :--- |
+| 1. How to level bed on Creality Ender-3 S1? | `ender3_s1.pdf` [P: 6, C: 2; P: 8, C: 1] | CR-Touch, Z-offset, and manual leveling instructions. | Relevant / Grounded / Correct |
+| 2. Flash memory size on Arduino Uno? | `arduino_uno.pdf` [P: 2, C: 1] | 32 kB Flash memory. | Relevant / Grounded / Correct |
+| 3. I2C pins on Raspberry Pi Pico? | `raspberry_pi_pico.pdf` [P: 18, C: 1; P: 17, C: 2] | SCL = Pin 9 and SDA = Pin 8 / GP9 and GP8. | Relevant / Grounded / Correct |
+| 4. Filament jam troubleshooting on Ender-3 S1? | `ender3_s1.pdf` [P: 9, C: 2; P: 9, C: 1] | Nozzle heating, extrusion handle, filament removal, and clearing residual material. | Relevant / Grounded / Correct |
+| 5. How to connect Arduino Uno to computer? | `arduino_uno.pdf` [P: 9, C: 1] | USB-B cable is used for connection and provides board power. | Relevant / Grounded / Correct |
+| 6. Analog input pins on Arduino Uno? | `arduino_uno.pdf` [P: 11, C: 1] | 6 analog inputs, A0 through A5. | Relevant / Grounded / Correct |
+| 7. Build volume of Creality Ender-3 S1? | No relevant supporting context | "I don't know based on the provided documents." | Insufficient Evidence / Grounded Refusal / Correct |
+| 8. Does Ender-3 S1 have a filament runout sensor? | `ender3_s1.pdf` [P: 6, C: 2; P: 3, C: 1] | The context mentions a filament sensor and filament sensor interface, but does not explicitly confirm that it is a filament runout sensor; the system refuses to answer. | Insufficient Evidence / Grounded Refusal / Correct |
+| 9. Microcontroller chip for Raspberry Pi Pico? | `raspberry_pi_pico.pdf` [P: 14, C: 1] | The context does not explicitly identify the specific microcontroller chip; the system refuses to answer. | Insufficient Evidence / Grounded Refusal / Correct |
+| 10. Default baud rate for Arduino serial? | No relevant supporting context | "I don't know based on the provided documents." | Insufficient Evidence / Grounded Refusal / Correct |
 
-The refusal cases demonstrate the grounding behavior: when the required information was not sufficiently supported by the indexed documentation, the assistant did not rely on external/general model knowledge.
+### Main Failure Cases & Mitigation
+
+**Failure Cases Observed:**
+
+The main issues observed were retrieval limitations and insufficiently explicit information in the source documents. Question 6 initially demonstrated a retrieval limitation: with `top_k=3`, the relevant Arduino pinout chunk containing A0–A5 was not retrieved. Increasing `top_k` to 8 allowed the relevant evidence to be retrieved and produced the correct answer. Question 8 retrieved context mentioning a filament sensor and filament sensor interface, but the documents did not explicitly confirm that it was a filament runout sensor, so the system correctly refused to make the unsupported claim. Questions 7, 9, and 10 also did not have sufficient explicit supporting evidence for the requested information, so the system correctly refused to provide unsupported answers.
+
+**Mitigation Strategy:**
+
+The retrieval issue observed in Question 6 was mitigated by increasing `top_k` from 3 to 8. To reduce hallucination and unsupported inference, strict grounding rules were added to the generation prompt. The model was instructed to use only information explicitly stated in the retrieved context, avoid outside knowledge and inference, and respond with "I don't know based on the provided documents" when sufficient evidence was unavailable. This prevented unsupported inference in Question 9, where the model previously identified the chip as RP2040 despite the retrieved context not explicitly stating this, and produced appropriate grounded refusals for Questions 7, 8, and 10. Further improvements could include better document extraction, additional source documents, or improved retrieval/reranking strategies.
 
 ---
 
