@@ -590,7 +590,13 @@ The FastAPI Swagger interface shows the available endpoints and a successful `/q
 ![FastAPI Swagger API](screenshots/swagger_api2.png)
 
 ---
+## 🎥 Demo Video
 
+Watch the recorded walkthrough of the Hardware RAG Assistant:
+
+[▶️ Watch the Demo Video on Google Drive](https://drive.google.com/drive/folders/1oTUFaL6HpmFWZwtMpUP4VrHZ7NwBMtpp)
+
+---
 ## 🧪 Testing
 
 The backend includes automated tests using Pytest.
